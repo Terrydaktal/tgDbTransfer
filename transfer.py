@@ -18,7 +18,7 @@ def insert (homeDatabase, rows):
         c = conn.cursor()
         c.execute('SELECT * FROM messages WHERE text=null')
         blanks = c.fetchall()
-        blankIDs = [blanks[j][0] for j in blanks if blanks[j][<message row number>] == null]
+        blankIDs = [blanks[j][0] for j in blanks if blanks[j][7] == null]
         for i in range (rows.length()-1):
             lst = list(rows[i])
             lst[0] = blankIDs[i]
