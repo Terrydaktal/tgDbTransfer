@@ -1,19 +1,20 @@
 import sqlite3
+import sys
 
-def extract (aymanDatabase):
+def extract (friendDatabase, startMessageID, endMessageID):
     with conn:
-        conn = create_connection(aymanDatabase)
+        conn = create_connection(friendDatabase)
         c = conn.cursor()
         c.execute('SELECT * FROM messages WHERE sourceID="<our chat>"')
         rows = c.fetchall()
-        rows = rows[:137000]
+        rows = rows[startMessageID:endMessageID-1]
         conn.close()
     return rows
         
         
-def insert (lewisDatabase, rows):
+def insert (homeDatabase, rows):
     with conn:
-        conn = create_connection(lewisDatabase)
+        conn = create_connection(homeDatabase)
         c = conn.cursor()
         c.execute('SELECT * FROM messages WHERE text=null')
         blanks = c.fetchall()
@@ -33,8 +34,11 @@ def insert (lewisDatabase, rows):
         conn.close()
         
 if __name__ == '__main__':
-    messages = aymans_messages - my_messages
-    lewisDatabase = sqlite.connect('<file>.sqlite')
-    aymanDatabase = sqlite.connect('<file>.sqlite')
-    rows = extract(aymanDatabase)
-    insert(lewisDatabase, rows)
+    try: 
+        homeDB, friendDB, startMessageID, endMessageID = [i for j in sys.argv[1:]]
+    except Exception as e: print(e)
+        
+    homeDatabase = sqlite.connect(homeDB) #'<file>.sqlite'
+    friendDatabase = sqlite.connect(friendDB)
+    rows = extract(friendDatabase, startMessageID, endMessageID)
+    insert(homeDatabase, rows)
