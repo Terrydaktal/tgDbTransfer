@@ -17,6 +17,7 @@ def lineParser(line, message, state):
   
   else:
     for char in line: message += char
+      
   return message
     
 if __name__ == '__main__':
@@ -45,3 +46,5 @@ if __name__ == '__main__':
         else: 
           messages.append(message)
           finish = true
+          
+  backupFile.close()
