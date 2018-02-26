@@ -13,14 +13,20 @@ def extract (friendDatabase, chatID, startMessageID, endMessageID):
         conn.close()
     return rows
         
-        
-def insert (homeDatabase, rows):
+def retrieveBlanks():
     conn = create_connection(homeDatabase)
     with conn:
         c = conn.cursor()
         c.execute('SELECT * FROM messages WHERE text=null')
         blanks = c.fetchall()
         blankIDs = [blanks[j][0] for j in range(blanks - 1)]
+    conn.close()
+    return blankIDs
+    
+def insert (homeDatabase, rows):
+    conn = create_connection(homeDatabase)
+    with conn:
+        blankIDS = retrieveBlanks()
         for i in range (rows.length()-1):
             lst = list(rows[i])
             lst[0] = blankIDs[i]
