@@ -15,8 +15,8 @@ def extract (friendDatabase, chatID, startMessageID, endMessageID):
         
         
 def insert (homeDatabase, rows):
+    conn = create_connection(homeDatabase)
     with conn:
-        conn = create_connection(homeDatabase)
         c = conn.cursor()
         c.execute('SELECT * FROM messages WHERE text=null')
         blanks = c.fetchall()
