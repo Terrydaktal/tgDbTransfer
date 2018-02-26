@@ -1,4 +1,7 @@
 import datetime
+import glob
+import os
+from transfer import insert, retireveBlanks
 
 def lineParser(line, message, state):
   space = 0
@@ -19,17 +22,30 @@ def lineParser(line, message, state):
     for char in line: message += char
       
   return message
-    
-if __name__ == '__main__':
-  messages, sendIds, sourceIDs, times = ([],)*4
+
+def configureDirectories():
+  search_dir = "Photos/"
+  files = filter(os.path.isfile, glob.glob(search_dir + "*"))
+  files.sort(key=lambda x: os.path.getmtime(x))
   
+  #for i, j in enumerate(files):
+  #  ext = re.search ("(?:\.)(.*)", j)
+  #  os.rename(j, i+ext)
+
+def commitToDatabase(messages, sendIds, sourceIDs, times)
+
+if __name__ == '__main__':
+  messages, sendIds, times = ([],)*3
+  
+  configureDirectories()
   with open('backup.txt', 'r') as backupFile:
     for i, line in enumerate(backupFile):
       finish = false
-      sourceIDs.append(<chat id>)
       if "Fedex Master" in line:
         sendIDs.append(<id>)
       else: sendIDs.append(<other id>)
+      
+      checkMedia()
      
       message = lineParser(line, "", "new")
 
@@ -47,3 +63,13 @@ if __name__ == '__main__':
           finish = true
           
   backupFile.close()
+  
+  rows = []
+  for i in range(times.length()-1):
+    blankIDs = retrieveBlanks()
+    record = (blankID[i], blankID[i], "message", "dialog", source_id, sendIDs[i], null, messages[i], 
+              times[i], 1, media_type, media_file, media_size, null, null, null, 53)
+    rows.append(record)
+  
+  imsert("database.sqlite", rows)
+  
