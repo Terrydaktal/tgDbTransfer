@@ -37,7 +37,6 @@ if __name__ == '__main__':
       day,month,year = backupfile[i+1][0:10].split('.')
       while not finish:
         try:
-          datetime.datetime(int(year),int(month),int(day))
           time = datetime(int(year),int(month),int(day).total_seconds() - datetime(1970,1,1)).total_seconds()
           times.append(time)
         except ValueError:
