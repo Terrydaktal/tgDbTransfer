@@ -82,24 +82,23 @@ if __name__ == '__main__':
      
       message = lineParser(line, "", "new")
       
-      if i < len(lines) - 1 and lines[i+1][0].isdigit():
-        try:
-          day, month, year = lines[i+1][0:10].split(".")
-          hours, mins, seconds = lines[i+1][11:19].split(":")
-          #print (day, month, year, hours, mins, seconds)
-        except ValueError: pass
+      if i < len(lines) - 1:
         while not finish:
           try:
+            lines[i+1][0].isdigit()
+            day, month, year = lines[i+1][0:10].split(".")
+            hours, mins, seconds = lines[i+1][11:19].split(":")
             t = datetime(int(year),int(month),int(day),int(hours),int(mins),int(seconds))
             unixtime = time.mktime(t.timetuple())
             times.append(unixtime)
-          except ValueError as e:
-            print(e)
+          except Exception:
             message+= " "
             message = lineParser(line, message, "continuation")
-          else: 
+          else:
             messages.append(message)
             finish = True
+
+        else: messages.append(message)
           
   backupFile.close()
 
