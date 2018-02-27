@@ -44,8 +44,10 @@ def checkMedia(line, voice, photo, video, allFiles):
     photo+=1
   elif "[[Voice Message" in line:
     line.replace("[[Voice Message]]", allFiles[0][photo])
+    voice+=1
   elif "[[Video" in line:
     line.replace("[[Video]]", allFiles[0][photo])
+    video+=1
     
   return voice, photo, video, allFiles
                  
