@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime
 import glob
 import os
+import re
 from transfer import insert, retrieveBlanks
 firstline = True
 
@@ -16,11 +17,11 @@ def lineParser(line, message, state):
   if state == "new":
     for char in line:
 
-      if char.isspace():
-        space += 1
-      
-      elif space > 4:
-        message += char
+      if space >= 4:
+          message += char
+
+      else:
+        if char.isspace(): space += 1
   
   else:
     for char in line: message += char
@@ -34,7 +35,7 @@ def configureDirectories():
     files1 = filter(os.path.isfile, glob.glob(i + "*"))
     files = [i for i in files1]
     files.sort(key=lambda x: os.path.getmtime(x))
-    files = [i for i in reversed(files)]
+    files = [re.sub('^.*\\ ', '', i) for i in reversed(files)]
     allFiles.append(files)
                 
   return allFiles
@@ -80,19 +81,23 @@ if __name__ == '__main__':
       line, voice, photo, video, allFiles, mediaFiles = checkMedia(line, voice, photo, video, allFiles, mediaFiles)
      
       message = lineParser(line, "", "new")
-
-    if i < len(lines) - 1 and lines[i+1][0].isdigit():
-      day, month, year = lines[i+1][0:10].split('.')
-      while not finish:
+      
+      if i < len(lines) - 1 and lines[i+1][0].isdigit():
         try:
-          time = datetime(int(year),int(month),int(day).total_seconds() - datetime(1970,1,1)).total_seconds()
-          times.append(time)
-        except ValueError:
-          message+=" "
-          message = lineParser(line, message, "continuation")
-        else: 
-          messages.append(message)
-          finish = True
+          day, month, year = lines[i+1][0:10].split(".")
+          hours, mins, seconds = lines[i+1][12:19].split(":")
+        except ValueError: pass
+        while not finish:
+          try:
+            time = (datetime(int(year),int(month),int(day),int(hours),int(mins),int(seconds)) - datetime(1970,1,1)).total_seconds()
+            times.append(time)
+          except ValueError as e:
+            print(e)
+            message+= " "
+            message = lineParser(line, message, "continuation")
+          else: 
+            messages.append(message)
+            finish = True
           
   backupFile.close()
 
@@ -100,9 +105,8 @@ if __name__ == '__main__':
   rows = []
   blankIDPairs = retrieveBlanks("database.sqlite")
 
-  print(times)
   for i in range(len(times) - 1):
-    media_type = "photo" if ".png" in str(mediaFiles[i]) or ".jpg" in str(mediaFiles[i]) else "document"
+    media_type = "photo" if mediaFiles != None and (".png" in str(mediaFiles[i]) or ".jpg" in str(mediaFiles[i])) else "document"
     record = (blankIDPairs[0][i], blankIDPairs[1][i], "message", "dialog", "54129829", sendIDs[i], None, messages[i], 
               times[i], 1, media_type, mediaFiles[i], None, None, None, None, 53)
     rows.append(record)
