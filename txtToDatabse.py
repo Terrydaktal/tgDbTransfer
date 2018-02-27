@@ -25,7 +25,7 @@ def lineParser(line, message, state):
   return message
 
 def configureDirectories():
-  directories = ["Photos\", "Videos\", "Audios\"]
+  directories = ["Photos\\", "Videos\\", "Audios\\"]
   for i in directories:
     files = filter(os.path.isfile, glob.glob(i + "*")).sort(key=lambda x: os.path.getmtime(x))
     allFiles.append(files)
@@ -40,10 +40,13 @@ def checkMedia(line, voice, photo, video, allFiles):
   if "[[Voice Message" in line:
     
   elif "[[Photo" in line:
-    line.replace("[[Voice Message]]", allFiles[0][photo])
+    line.replace("[[Photo]]", allFiles[0][photo])
     photo+=1
-  elif "[[Audio" in line:
+  elif "[[Voice Message" in line:
+    line.replace("[[Voice Message]]", allFiles[0][photo])
   elif "[[Video" in line:
+    line.replace("[[Video]]", allFiles[0][photo])
+    
   return voice, photo, video, allFiles
                  
 if __name__ == '__main__':
