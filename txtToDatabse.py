@@ -83,11 +83,13 @@ if __name__ == '__main__':
       message = lineParser(line, "", "new")
       
       if i < len(lines) - 1:
+        j=0
         while not finish:
+          j+=1
           try:
-            lines[i+1][0].isdigit()
-            day, month, year = lines[i+1][0:10].split(".")
-            hours, mins, seconds = lines[i+1][11:19].split(":")
+            lines[i+j][0].isdigit()
+            day, month, year = lines[i+j][0:10].split(".")
+            hours, mins, seconds = lines[i+j][11:19].split(":")
             t = datetime(int(year),int(month),int(day),int(hours),int(mins),int(seconds))
             unixtime = time.mktime(t.timetuple())
             times.append(unixtime)
