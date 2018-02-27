@@ -73,7 +73,7 @@ if __name__ == '__main__':
      
       message = lineParser(line, "", "new")
 
-    if backupFile[i+1][0].isdigit()
+    if backupFile[i+1][0].isdigit():
       day, month, year = backupfile[i+1][0:10].split('.')
       while not finish:
         try:
