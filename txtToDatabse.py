@@ -1,7 +1,7 @@
 import datetime
 import glob
 import os
-from transfer import insert, retireveBlanks
+from transfer import insert, retrieveBlanks
 
 def lineParser(line, message, state):
   space = 0
@@ -15,7 +15,8 @@ def lineParser(line, message, state):
 
       if char.isspace():
         space += 1
-      if space > 4:
+      
+      elif space > 4:
         message += char
   
   else:
@@ -24,33 +25,46 @@ def lineParser(line, message, state):
   return message
 
 def configureDirectories():
-  search_dir = "Photos/"
-  files = filter(os.path.isfile, glob.glob(search_dir + "*"))
-  files.sort(key=lambda x: os.path.getmtime(x))
+  directories = ["Photos\", "Videos\", "Audios\"]
+  for i in directories:
+    files = filter(os.path.isfile, glob.glob(i + "*")).sort(key=lambda x: os.path.getmtime(x))
+    allFiles.append(files)
+                
+  return allFiles
   
   #for i, j in enumerate(files):
   #  ext = re.search ("(?:\.)(.*)", j)
   #  os.rename(j, i+ext)
 
-def commitToDatabase(messages, sendIds, sourceIDs, times)
-
+def checkMedia(line, voice, photo, video, allFiles):
+  if "[[Voice Message" in line:
+    
+  elif "[[Photo" in line:
+    line.replace("[[Voice Message]]", allFiles[0][photo])
+    photo+=1
+  elif "[[Audio" in line:
+  elif "[[Video" in line:
+  return voice, photo, video, allFiles
+                 
 if __name__ == '__main__':
   messages, sendIds, times = ([],)*3
+  voice, photo, video = (0,)*3
   
-  configureDirectories()
+  allFiles = configureDirectories()
+                 
   with open('backup.txt', 'r') as backupFile:
     for i, line in enumerate(backupFile):
       finish = false
       if "Fedex Master" in line:
-        sendIDs.append(<id>)
-      else: sendIDs.append(<other id>)
+        sendIDs.append(54129829)
+      else: sendIDs.append(67106936)
       
-      checkMedia()
+      voice, photo, video, allFiles = checkMedia(line, voice, photo, video, allFiles)
      
       message = lineParser(line, "", "new")
 
     if backupFile[i+1][0].isdigit()
-      day,month,year = backupfile[i+1][0:10].split('.')
+      day, month, year = backupfile[i+1][0:10].split('.')
       while not finish:
         try:
           time = datetime(int(year),int(month),int(day).total_seconds() - datetime(1970,1,1)).total_seconds()
@@ -71,5 +85,5 @@ if __name__ == '__main__':
               times[i], 1, media_type, media_file, media_size, null, null, null, 53)
     rows.append(record)
   
-  imsert("database.sqlite", rows)
+  insert("database.sqlite", rows)
   
