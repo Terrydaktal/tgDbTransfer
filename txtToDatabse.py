@@ -36,23 +36,25 @@ def configureDirectories():
   #  ext = re.search ("(?:\.)(.*)", j)
   #  os.rename(j, i+ext)
 
-def checkMedia(line, voice, photo, video, allFiles):
-  if "[[Voice Message" in line:
-    
-  elif "[[Photo" in line:
+def checkMedia(line, voice, photo, video, allFiles, mediaFiles):  
+  if "[[Photo" in line:
     line.replace("[[Photo]]", allFiles[0][photo])
     photo+=1
+    mediaFiles.append(allFiles[0][photo])
   elif "[[Voice Message" in line:
-    line.replace("[[Voice Message]]", allFiles[0][photo])
+    line.replace("[[Voice Message]]", allFiles[0][voice])
     voice+=1
+    mediaFiles.append(allFiles[0][voice])
   elif "[[Video" in line:
-    line.replace("[[Video]]", allFiles[0][photo])
+    line.replace("[[Video]]", allFiles[0][video])
+    mediaFiles.append(allFiles[0][video])
     video+=1
-    
-  return voice, photo, video, allFiles
+  else:
+    mediaFiles.append(None)
+  return voice, photo, video, allFiles, mediaFiles
                  
 if __name__ == '__main__':
-  messages, sendIds, times = ([],)*3
+  messages, sendIds, times, mediaFiles = ([],)*4
   voice, photo, video = (0,)*3
   
   allFiles = configureDirectories()
@@ -64,7 +66,7 @@ if __name__ == '__main__':
         sendIDs.append(54129829)
       else: sendIDs.append(67106936)
       
-      voice, photo, video, allFiles = checkMedia(line, voice, photo, video, allFiles)
+      voice, photo, video, allFiles, mediaFiles = checkMedia(line, voice, photo, video, allFiles, mediaFiles)
      
       message = lineParser(line, "", "new")
 
@@ -86,8 +88,8 @@ if __name__ == '__main__':
   rows = []
   for i in range(times.length()-1):
     blankIDs = retrieveBlanks()
-    record = (blankID[i], blankID[i], "message", "dialog", source_id, sendIDs[i], null, messages[i], 
-              times[i], 1, media_type, media_file, media_size, null, null, null, 53)
+    record = (blankID[i], blankID[i], "message", "dialog", source_id, sendIDs[i], None, messages[i], 
+              times[i], 1, media_type, media_file, None, None, None, None, 53)
     rows.append(record)
   
   insert("database.sqlite", rows)
