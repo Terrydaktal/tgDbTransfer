@@ -39,13 +39,12 @@ def insert (homeDatabase, rows):
                     rows[i][1], rows[i][2], rows[i][3], rows[i][4], rows[i][5], rows[i][6], rows[i][7], rows[i][8]
                     rows[i][9], rows[i][10], rows[i][11], rows[i][12], rows[i][13], rows[i][14], rows[i][15], rows[i][16]))
         
-        conn.commit()
-        
         fileIDs = [rows[j][11] for j in range(rows.length() - 1)]
         for i in fileIDs:
             if not os.path.exists(homeFileDirectory + i):
                 shutil.copy(friendFileDirectory+i, homeFileDirectory+i)      
-                
+
+        conn.commit()        
         conn.close()
         
 if __name__ == '__main__':
