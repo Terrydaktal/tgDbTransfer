@@ -88,8 +88,9 @@ if __name__ == '__main__':
   rows = []
   for i in range(times.length()-1):
     blankIDs = retrieveBlanks()
+    media_type = "photo" if ".png" in mediaFiles[i] or ".jpg" in mediaFiles[i] else "document"
     record = (blankID[i], blankID[i], "message", "dialog", source_id, sendIDs[i], None, messages[i], 
-              times[i], 1, media_type, media_file, None, None, None, None, 53)
+              times[i], 1, media_type, mediaFiles[i], None, None, None, None, 53)
     rows.append(record)
   
   insert("database.sqlite", rows)
