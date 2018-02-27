@@ -17,7 +17,7 @@ def retrieveBlanks():
     conn = create_connection(homeDatabase)
     with conn:
         c = conn.cursor()
-        c.execute('SELECT * FROM messages WHERE text=null')
+        c.execute('SELECT * FROM messages WHERE message_type = "empty_message"')
         blanks = c.fetchall()
         blankIDs = [blanks[j][0] for j in range(blanks - 1)]
     conn.close()
