@@ -7,7 +7,7 @@ def extract (friendDatabase, chatID, startMessageID, endMessageID):
     with conn:
         conn = create_connection(friendDatabase)
         c = conn.cursor()
-        c.execute("SELECT * FROM messages WHERE sourceID="{0}"".format(chatID))
+        c.execute('SELECT * FROM messages WHERE sourceID="{0}"'.format(chatID))
         rows = c.fetchall()
         rows = rows[startMessageID:endMessageID-1]
         conn.close()
