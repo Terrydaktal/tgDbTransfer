@@ -54,11 +54,14 @@ def checkMedia(line, voice, photo, video, allFiles, mediaFiles):
   return voice, photo, video, allFiles, mediaFiles
                  
 if __name__ == '__main__':
+  print("configuring...")
   messages, sendIds, times, mediaFiles = ([],)*4
   voice, photo, video = (0,)*3
-  
+
+  print("configuring directories...")
   allFiles = configureDirectories()
-                 
+  
+  print("extracting backup...")               
   with open('backup.txt', 'r') as backupFile:
     for i, line in enumerate(backupFile):
       finish = false
@@ -84,7 +87,8 @@ if __name__ == '__main__':
           finish = true
           
   backupFile.close()
-  
+
+  print("building database...")   
   rows = []
   for i in range(times.length()-1):
     blankIDs = retrieveBlanks()
@@ -92,6 +96,7 @@ if __name__ == '__main__':
     record = (blankID[i], blankID[i], "message", "dialog", source_id, sendIDs[i], None, messages[i], 
               times[i], 1, media_type, mediaFiles[i], None, None, None, None, 53)
     rows.append(record)
-  
+    
+  print("commiting changes...")   
   insert("database.sqlite", rows)
   
