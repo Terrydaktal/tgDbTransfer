@@ -1,7 +1,7 @@
-from datetime import datetime
+import time
 import glob
 import os
-import re
+from datetime import datetime
 from transfer import insert, retrieveBlanks
 firstline = True
 
@@ -32,10 +32,10 @@ def configureDirectories():
   directories = ["Photos\\", "Videos\\", "Audios\\"]
   allFiles = []
   for i in directories:
-    files1 = filter(os.path.isfile, glob.glob(i + "*"))
-    files = [i for i in files1]
+    tmpFiles = filter(os.path.isfile, glob.glob(i + "*"))
+    files = [i for i in tmpFiles]
     files.sort(key=lambda x: os.path.getmtime(x))
-    files = [re.sub('^.*\\ ', '', i) for i in reversed(files)]
+    files = [i.split('\\')[1] for i in reversed(files)]
     allFiles.append(files)
                 
   return allFiles
@@ -85,12 +85,14 @@ if __name__ == '__main__':
       if i < len(lines) - 1 and lines[i+1][0].isdigit():
         try:
           day, month, year = lines[i+1][0:10].split(".")
-          hours, mins, seconds = lines[i+1][12:19].split(":")
+          hours, mins, seconds = lines[i+1][11:19].split(":")
+          #print (day, month, year, hours, mins, seconds)
         except ValueError: pass
         while not finish:
           try:
-            time = (datetime(int(year),int(month),int(day),int(hours),int(mins),int(seconds)) - datetime(1970,1,1)).total_seconds()
-            times.append(time)
+            t = datetime(int(year),int(month),int(day),int(hours),int(mins),int(seconds))
+            unixtime = time.mktime(t.timetuple())
+            times.append(unixtime)
           except ValueError as e:
             print(e)
             message+= " "
@@ -106,12 +108,18 @@ if __name__ == '__main__':
   blankIDPairs = retrieveBlanks("database.sqlite")
 
   for i in range(len(times) - 1):
-    media_type = "photo" if mediaFiles != None and (".png" in str(mediaFiles[i]) or ".jpg" in str(mediaFiles[i])) else "document"
-    record = (blankIDPairs[0][i], blankIDPairs[1][i], "message", "dialog", "54129829", sendIDs[i], None, messages[i], 
+    if ".png" in str(mediaFiles[i]) or ".jpg" in str(mediaFiles[i]): media_type =  "photo"
+    elif mediaFiles[i] != None: media_type = "document"
+    else: media_type = None
+    
+    record = (blankIDPairs[0][i], i, "message", "dialog", "54129829", sendIDs[i], None, messages[i], 
               times[i], 1, media_type, mediaFiles[i], None, None, None, None, 53)
     rows.append(record)
+
+    i+= 1
     
   print("commiting changes...")   
   insert("database.sqlite", rows)
   print("done!")
-  
+
+  #select * from messages where source_id = "54129829"
