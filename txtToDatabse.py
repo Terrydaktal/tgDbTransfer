@@ -29,7 +29,7 @@ def lineParser(line, message, state):
   return message
 
 def configureDirectories():
-  directories = ["Photos\\", "Videos\\", "Audios\\"]
+  directories = ["Photos\\", "Videos\\", "Audios\\", "Documents\\"]
   allFiles = []
   for i in directories:
     tmpFiles = filter(os.path.isfile, glob.glob(i + "*"))
@@ -44,22 +44,23 @@ def configureDirectories():
   #  ext = re.search ("(?:\.)(.*)", j)
   #  os.rename(j, i+ext)
 
-def checkMedia(line, voice, photo, video, allFiles, mediaFiles):  
+def checkMedia(line, voice, photo, video, document, allFiles, mediaFiles):  
   if "[[Photo" in line:
-    line.replace("[[Photo]]", allFiles[0][photo])
+    line = line.replace("[[Photo]]", "")
     mediaFiles.append(allFiles[0][photo])
     photo+=1
   elif "[[Video" in line:
-    line.replace("[[Video]]", allFiles[1][video])
     mediaFiles.append(allFiles[1][video])
     video+=1
   elif "[[Voice Message" in line:
-    line.replace("[[Voice Message]]", allFiles[2][voice])
     mediaFiles.append(allFiles[2][voice])
     voice+=1
+  elif "[[Document" in line:
+    mediaFiles.append(allFiles[3][document])
+    document+=1
   else:
     mediaFiles.append(None)
-  return line, voice, photo, video, allFiles, mediaFiles
+  return line, voice, photo, video, document, allFiles, mediaFiles
                  
 if __name__ == '__main__':
   print("configuring...")
@@ -71,37 +72,44 @@ if __name__ == '__main__':
   
   print("extracting backup...")               
   with open('backup.txt', 'r', encoding="utf8") as backupFile:
+    offset = 0
     lines = backupFile.readlines()
-    for i, line in enumerate(lines):
+    for i in range(len(lines) - 1):
       finish = False
-      if "Fedex Master" in line:
-        sendIDs.append(54129829)
-      else: sendIDs.append(67106936)
-      
-      line, voice, photo, video, allFiles, mediaFiles = checkMedia(line, voice, photo, video, allFiles, mediaFiles)
+
+      try:
+        if "Fedex Master" in lines[i+offset]:
+          sendIDs.append(54129829)
+        else: sendIDs.append(67106936)
+      except Exception: break
      
-      message = lineParser(line, "", "new")
+      message = lineParser(lines[i+offset], "", "new")
       
-      if i < len(lines) - 1:
-        j=0
+      j=0
+      
+      if i + offset < len(lines) - 1:
         while not finish:
           j+=1
           try:
-            lines[i+j][0].isdigit()
-            day, month, year = lines[i+j][0:10].split(".")
-            hours, mins, seconds = lines[i+j][11:19].split(":")
+            lines[i+j+offset][0].isdigit()
+            day, month, year = lines[i+j+offset][0:10].split(".")
+            hours, mins, seconds = lines[i+j+offset][11:19].split(":")
             t = datetime(int(year),int(month),int(day),int(hours),int(mins),int(seconds))
             unixtime = time.mktime(t.timetuple())
             times.append(unixtime)
           except Exception:
             message+= " "
-            message = lineParser(line, message, "continuation")
+            message = lineParser(lines[i+j+offset], message, "continuation")
           else:
-            messages.append(message)
+            message, voice, photo, video, allFiles, mediaFiles = checkMedia(message, voice, photo, video, allFiles, mediaFiles)
             finish = True
+            messages.append(message)
+      else:
+        message, voice, photo, video, document, allFiles, mediaFiles = checkMedia(message, voice, photo, video, document, allFiles, mediaFiles)
+        messages.append(message)
 
-        else: messages.append(message)
-          
+      offset += j - 1
+      
   backupFile.close()
 
   print("building database...")   
